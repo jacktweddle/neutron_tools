@@ -31,7 +31,11 @@ def angle_between_planes(x1, y1, z1, d1, x2, y2, z2, d2):
 def dist_between_planes(x1, y1, z1, d1, x2, y2, z2, d2):
     """ calculate distance between two planes"""
 
-    # check planes are not identical
+    # Check if planes are parallel; if not then return 0 as they will intersect
+    if x1 != x2 or y1 != y2 or z1 != z2:
+        return 0.0
+
+    # Check planes are not identical
     if x1 == x2 and y1 == y2 and z1 == z2 and d1 == d2:
         return 0.0
 
@@ -59,10 +63,101 @@ def dist_between_planes(x1, y1, z1, d1, x2, y2, z2, d2):
     return D
 
 
-def dist_between_point_plane():
-    """ """
-    dist = 0
+def dist_between_point_plane(x1, y1, z1, d, x2, y2, z2):
+    """Calculate minimum distance between a point and a plane
+       x1*x + y1*y + z1*z = d defines the plane; (x, y, z) is the point q lying in the plane
+       (x2, y2, z2) is the point p
+    """
+
+    # Check point does not lie in plane
+    if (x1*x2)+(y1*y2)+(z1*z2) == d:
+        return 0.0
+
+    x = 0.0
+    y = 0.0
+    z = 0.0
+
+    # Creates a point p that lies in the plane
+    if y1 != 0.0:
+        y = d / y1
+    elif z1 != 0.0:
+        z = d / z1
+    elif x1 != 0.0:
+        x = d / x1
+
+    check = evaluate_plane_eq(x, y, z, x1, y1, z1, d)
+    if check != 0.0:
+        logging.debug("warning check not equal to 0.0")
+        logging.debug(check)
+
+    xd = x - x2
+    yd = y - y2
+    zd = z - z2
+
+    # Let q be the point (x2, y2, z2). Shortest distance FROM POINT TO PLANE is (q-p).n_hat
+    dist = ((xd*x1)+(yd*y1)+(zd*z1))/np.sqrt(x1**2+y1**2+z1**2)
+
+    # Function designed to return signed distance as opposed to magnitude
+    # as allows more flexibility in interactions with other functions
+
     return dist
+
+
+def plane_sphere_intersect(x1, y1, z1, d, a, b, c, R):
+    """Calculate the centre and radius of the circle produced at the intersection of a plane and sphere
+       x1*x + y1*y + z1*z = d defines the plane
+       (x-a)**2 + (y-b)**2 + (z-c)**2 = R**2 is the general equation of a sphere
+    """
+
+    if R < 0:
+        raise ValueError('Negative radius')
+
+    # First find the distance between the centre of the sphere and the centre of the circle
+    # This is the shortest distance between the centre of the sphere and the plane
+    l = dist_between_point_plane(x1, y1, z1, d, a, b, c)
+
+    # Check to see if the plane and sphere intercept
+    if l > R:
+        raise ValueError('Plane and sphere do not intersect')
+
+    # Pythagoras then gives the radius of the circle
+    r = np.sqrt(R**2 - l**2)
+
+    centre_x = a + (l*x1)/np.sqrt(x1**2+y1**2+z1**2)
+    centre_y = b + (l*y1)/np.sqrt(x1**2+y1**2+z1**2)
+    centre_z = c + (l*z1)/np.sqrt(x1**2+y1**2+z1**2)
+
+    centre = np.array([centre_x, centre_y, centre_z])
+
+    return r, centre
+
+
+def plane_plane_intersect(x1, y1, z1, d1, x2, y2, z2, d2):
+
+    # Take equation of plane as x1*x + y1*y + z1*z = d
+    # Planes intersect at line p + qt, where t is a parameter.
+    # Use normals to calculate cross product. This is the direction vector of the line, q.
+    # Determine a point on the line by setting one coordinate to zero and solving the system of equations
+
+    if x1 == x2 and y1 == y2 and z1 == z2:
+        raise ValueError('Planes are parallel and thus do not intersect.')
+
+    n1 = np.array([x1, y1, z1])
+    n2 = np.array([x2, y2, z2])
+
+    # Direction vector of line
+    n = np.cross(n1, n2)
+
+    # To generate a point on the line, let z=0
+
+    a = np.array([[x1, y1], [x2, y2]])
+    b = np.array([d1, d2])
+    x = np.linalg.solve(a, b)
+
+    p = np.array([x[0], x[1], 0])
+
+    # Returns parameterised equation of the line of intersection, where t is a parameter
+    return print(p, '+ t * ', n)
 
 
 def dist_bet_points(x1, y1, z1, x2, y2, z2):
@@ -292,3 +387,48 @@ def sphere_ray_intesect(x, y, z, ux, uy, uz, spherex, spherey,
     mu2 = -1 * ddot - np.sqrt((ddot*ddot) - (dp2) + (sphere_rad*sphere_rad))
 
     return (mu1, mu2)
+
+
+def cartesian_to_cylindrical(x, y, z):
+    """Converts Cartesian coordinates to cylindrical polar coordinates"""
+
+    rho = np.sqrt(x**2 + y**2)
+    phi = np.arctan(y/x)
+    z_cyl = z
+
+    return rho, phi, z_cyl
+
+
+def cartesian_to_spherical(x, y, z):
+    """Converts Cartesian coordinates to spherical polar coordinates"""
+
+    r = np.sqrt(x**2 + y**2 + z**2)
+    theta = np.arccos(z/r)
+    if x >= 0:
+        phi = np.arctan(y/x)
+    elif x < 0:
+        phi = np.arctan(y/x) + np.pi
+
+    return r, theta, phi
+
+
+def cylindrical_to_cartesian(rho, phi, z_cyl):
+    """Converts cylindrical polar coordinates to Cartesian coordinates"""
+
+    x = rho*np.cos(phi)
+    y = rho*np.sin(phi)
+    z = z_cyl
+
+    return x, y, z
+
+
+def spherical_to_cartesian(r, theta, phi):
+    """Converts spherical polar coordinates to Cartesian coordinates"""
+
+    x = r*np.sin(theta)*np.cos(phi)
+    y = r*np.sin(theta)*np.sin(phi)
+    z = r*np.cos(theta)
+
+    return x, y, z
+
+
