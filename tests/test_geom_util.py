@@ -52,13 +52,31 @@ class geom_volume_test_case(unittest.TestCase):
 class geom_planes_test_case(unittest.TestCase):
     """ tests for plane functions"""
 
-    def test_dist_is_zero(self):
+    def test_dist_is_zero_same_plane(self):
         self.assertEqual(geom_utils.dist_between_planes(0.0, 0.0, 0.0, 0.0,
                          0.0, 0.0, 0.0, 0.0), 0.0)
+
+    def test_dist_is_zero_not_parallel(self):
+        self.assertEqual(geom_utils.dist_between_planes(1.0, 2.0, 3.0, 4.0,
+                         5.0, 6.0, 7.0, 8.0), 0.0)
 
     def test_angle_is_zero(self):
         self.assertEqual(geom_utils.angle_between_planes(0.0, 0.0, 0.0, 0.0,
                          0.0, 0.0, 0.0, 0.0), 0.0)
+
+    def test_dist_is_zero_point_plane(self):
+        self.assertEqual(geom_utils.dist_between_point_plane(0.0, 0.0, 0.0,
+                         0.0, 0.0, 0.0, 0.0), 0.0)
+
+    def test_sphere_plane_intersect(self):
+        self.assertRaises(ValueError, geom_utils.plane_sphere_intersect, 1.0, 1.0,
+                          1.0, 1.0, 1.0, 1.0, 1.0, -1.0)
+        self.assertRaises(ValueError, geom_utils.plane_sphere_intersect, 1.0, 0.0,
+                          0.0, 2.0, 0.0, 0.0, 0.0, 1.0)
+
+    def test_plane_plane_intersect(self):
+        self.assertRaises(ValueError, geom_utils.plane_plane_intersect, 1.0, 1.0,
+                          1.0, 1.0, 1.0, 1.0, 1.0, -1.0)
 
 
 class geom_points_test_case(unittest.TestCase):
