@@ -23,7 +23,7 @@ def calc_err_abs(res, err):
     i = 0
     abs_err = []
     while i < len(res):
-        abs_err.append(res[i]*float(err[i]))
+        abs_err.append(res[i] * float(err[i]))
         i = i + 1
     return abs_err
 
@@ -35,7 +35,7 @@ def calc_bin_width(bins):
     bw.append(bins[0])
     i = 1
     while i < len(bins):
-        width = float(bins[i]) - float(bins[i-1])
+        width = float(bins[i]) - float(bins[i - 1])
         bw.append(width)
         i = i + 1
     bw = np.asarray(bw)
@@ -48,7 +48,7 @@ def calc_mid_points(bounds):
     bounds = np.array(bounds).astype(float)
     i = 0
     while i < len(bounds) - 1:
-        val = (bounds[i] + bounds[i+1]) / 2.0
+        val = (bounds[i] + bounds[i + 1]) / 2.0
         mids.append(val)
         i = i + 1
     return mids
@@ -59,10 +59,10 @@ def plot_raw_spectra(data, fname, title, sp="proton"):
     plt.clf()
     plt.title("Neutron energy spectra full model " + title)
     plt.xlabel("Energy (MeV)")
-    plt.ylabel("flux n/cm2/"+sp+"/bin")
+    plt.ylabel("flux n/cm2/" + sp + "/bin")
     plt.xscale('log')
     plt.yscale('log')
-    if type(data) is not list:
+    if not isinstance(data, list):
         data = [data]
 
     for d in data:
@@ -74,7 +74,7 @@ def plot_raw_spectra(data, fname, title, sp="proton"):
 def plot_spectra(data, fname, title, sp="proton", err=False,
                  xlow=None, legend=None):
     """ plots spectr afrom MCNP tally data object, dividing by bin width """
-    if type(data) is not list:
+    if not isinstance(data, list):
         data = [data]
 
     plt.clf()
@@ -87,17 +87,17 @@ def plot_spectra(data, fname, title, sp="proton", err=False,
     for d in data:
         bw = calc_bin_width(d.eng)
         if d.type == '2':
-            y_vals = np.asarray(d.result[0])/bw
-            splot = plt.step(np.asarray(d.eng),  y_vals)
+            y_vals = np.asarray(d.result[0]) / bw
+            splot = plt.step(np.asarray(d.eng), y_vals)
         elif d.type == '4' and len(d.cells) > 1:
             for cell in d.result:
-                y_vals = np.asarray(cell)/bw
-                splot = plt.step(np.asarray(d.eng),  y_vals)
+                y_vals = np.asarray(cell) / bw
+                splot = plt.step(np.asarray(d.eng), y_vals)
             legend = d.cells
 
         else:
-            y_vals = np.asarray(d.result)/bw
-            splot = plt.step(np.asarray(d.eng),  y_vals)
+            y_vals = np.asarray(d.result) / bw
+            splot = plt.step(np.asarray(d.eng), y_vals)
 
         if err is True:
             abs_err = calc_err_abs(y_vals, d.err)
@@ -127,9 +127,9 @@ def plot_spectra_ratio(data1, data2, fname, title):
     plt.ylabel("ratio")
     plt.xscale('log')
     if data1.type == '2':
-        ratio = np.asarray(data1.result[0])/np.asarray(data2.result[0])
+        ratio = np.asarray(data1.result[0]) / np.asarray(data2.result[0])
     else:
-        ratio = np.asarray(data1.result)/np.asarray(data2.result)
+        ratio = np.asarray(data1.result) / np.asarray(data2.result)
 
     plt.plot(data1.eng, ratio)
     plt.savefig(fname)
@@ -145,7 +145,7 @@ def plot_run_comp(data, err, fname, title, xlab="Run #",
     plt.xlabel(xlab)
     plt.ylabel(ylab)
     x = np.arange(1, len(data) + 1)
-    plt.xlim(xmin=0, xmax=len(x)+1)
+    plt.xlim(xmin=0, xmax=len(x) + 1)
     plt.errorbar(x, data, yerr=err, fmt='o')
     plt.savefig(fname)
     ntlogger.info("produced figure: %s", fname)
@@ -180,7 +180,7 @@ def plot_en_time(data, fname):
 
 def html_tab_out(data, fname):
     """ produces f4 tally data as html table output """
-    if type(data) is not list:
+    if not isinstance(data, list):
         data = [data]
 
     strTable = "<html><table><tr><th>Tally Number</th><th>CellNumber"
@@ -193,7 +193,7 @@ def html_tab_out(data, fname):
             strTable = strTable + "<td>" + str(tall.err[i]) + "</td>"
             strTable = strTable + "</tr>"
 
-    strTable = strTable+"</table></html>"
+    strTable = strTable + "</table></html>"
 
     hs = open(fname, 'w')
     hs.write(strTable)
@@ -202,7 +202,7 @@ def html_tab_out(data, fname):
 
 def csv_out(data, fname):
     """ produces  tally data as csv output   """
-    if type(data) is not list:
+    if not isinstance(data, list):
         data = [data]
 
     lines = []

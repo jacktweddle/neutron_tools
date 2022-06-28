@@ -145,7 +145,7 @@ def output_as_vtk():
 
 def find_nearest_mid(value, mids):
     """ finds midpoint with shortest absoloute distance to the value """
-    return mids[min(range(len(mids)), key=lambda i: abs(mids[i]-value))]
+    return mids[min(range(len(mids)), key=lambda i: abs(mids[i] - value))]
 
 
 def convert_to_df(mesh):
@@ -217,7 +217,7 @@ def pick_point(x, y, z, mesh, erg=None):
 def calculate_upper_mesh_vals(mesh1):
     """ adds the absoute max value based on the relative error """
     maxvals = mesh1.data["value"] + (
-              mesh1.data["value"] * mesh1.data["rel_err"])
+        mesh1.data["value"] * mesh1.data["rel_err"])
     mesh1.data["max_vals"] = maxvals
 
     return mesh1
@@ -226,7 +226,7 @@ def calculate_upper_mesh_vals(mesh1):
 def calculate_lower_mesh_vals(mesh1):
     """ adds the absoute min value based on the relative error """
     minvals = mesh1.data["value"] - (
-              mesh1.data["value"] * mesh1.data["rel_err"])
+        mesh1.data["value"] * mesh1.data["rel_err"])
     mesh1.data["min_vals"] = minvals
 
     return mesh1
@@ -300,7 +300,7 @@ def calc_mid_points(bounds):
     bounds = np.array(bounds).astype(float)
     i = 0
     while i < len(bounds) - 1:
-        val = (bounds[i] + bounds[i+1]) / 2.0
+        val = (bounds[i] + bounds[i + 1]) / 2.0
         val = round(val, 5)
         mids.append(val)
         i = i + 1
@@ -322,7 +322,7 @@ def find_next_mesh(tnum, tdict):
     else:
         for i, v in enumerate(keylist):
             if v == tnum:
-                return tdict[keylist[i+1]]
+                return tdict[keylist[i + 1]]
 
 
 def read_mesh(tnum, data, tdict):
@@ -392,7 +392,7 @@ def read_mesh_tally_file(fpath):
     """ reads all meshes in a meshtal file, returns a list of mesh objects """
     ntlogger.info('Reading MCNP meshtal file: %s', fpath)
     tdict = {}
-    
+
     with open(fpath, 'r') as file:
         for i, l in enumerate(file):
             if "Mesh Tally Number" in l:
