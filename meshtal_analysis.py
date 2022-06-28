@@ -314,17 +314,6 @@ def count_zeros(mesh):
     return count
 
 
-def find_mesh_tally_numbers(data):
-    """ find the different meshes in the file, the tally number
-        and the line it starts on"""
-    tdict = {}
-    for i, l in enumerate(data):
-        if "Mesh Tally Number" in l:
-            talid = int(l.split(" ")[-1])
-            tdict[talid] = i
-    return tdict
-
-
 def find_next_mesh(tnum, tdict):
     """ finds the start location of the next numerical mesh tally"""
     keylist = sorted(tdict.keys())
@@ -398,15 +387,6 @@ def read_mesh(tnum, data, tdict):
 
     return mesh
 
-def find_mesh_tally_numbers(data):
-    """ find the different meshes in the file, the tally number
-        and the line it starts on"""
-    tdict = {}
-    for i, l in enumerate(data):
-        if "Mesh Tally Number" in l:
-            talid = int(l.split(" ")[-1])
-            tdict[talid] = i
-    return tdict
 
 def read_mesh_tally_file(fpath):
     """ reads all meshes in a meshtal file, returns a list of mesh objects """
